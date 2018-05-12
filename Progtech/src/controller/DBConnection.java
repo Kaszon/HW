@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import model.Car;
+import model.Client;
 
 
 public class DBConnection {
@@ -35,6 +36,29 @@ public class DBConnection {
             //createClientTable();
             //createRentTable();
         }
+    }
+    
+    public static ArrayList<Client> getAllClients() {
+      ArrayList<Client> clients = new ArrayList<>();
+      Client tmpClient;
+      try {
+          conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+      } catch (SQLException e) {
+      }
+      if (conn != null) {
+          try {
+              statement = conn.createStatement();
+              statement.execute("SELECT * FROM client");
+              ResultSet rs = statement.getResultSet();
+
+              while (rs.next()) {
+                  tmpClient = new Client(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4));
+                  clients.add(tmpClient);
+              }
+          } catch (SQLException e) {
+          }
+      }
+      return clients;
     }
     
     public static ArrayList<Car> getAllCars(){
