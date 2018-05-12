@@ -63,6 +63,91 @@ public class DBConnection {
         return cars;
     }
     
+    public static Car addNewCar(Car c){
+      Car result = null;
+      Date tmpDate;
+      try {
+            conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+        } catch (SQLException e) {
+          System.out.println("hiba1");
+        }
+      if (conn != null) {
+          try {
+            //"INSERT INTO car VALUES ('toy515', 'Toyota', 'Yaris', '2017-05-05', './files/car.png', 0, 5000, 2015)"
+            StringBuilder sb = new StringBuilder("INSERT INTO car VALUES ('");
+            sb.append(c.getLicenseNumber());
+            sb.append("', '");
+            sb.append(c.getBrand());
+            sb.append("', '");
+            sb.append(c.getType());
+            sb.append("', '");
+            sb.append(sdf.format(c.getLastService()));
+            sb.append("', '");
+            sb.append(c.getImg());
+            sb.append("', ");
+            sb.append(c.isOnService() ? 1 : 0);
+            sb.append(", ");
+            sb.append(c.getPricePerDay());
+            sb.append(", ");
+            sb.append(c.getYearOfManufacture());
+            sb.append(")");
+            statement = conn.createStatement();
+            System.out.println(sb.toString());
+            statement.execute(sb.toString());
+            statement.execute("SELECT * FROM car WHERE licencenumber = '" + c.getLicenseNumber() + "'");
+            ResultSet rs = statement.getResultSet();
+            while (rs.next()) {
+                tmpDate = sdf.parse(rs.getString(4));
+                result = new Car(rs.getString(2), rs.getString(3), tmpDate,
+                        rs.getString(1), rs.getBoolean(6), rs.getString(5), rs.getInt(7), rs.getInt(8));
+            }
+          } catch (SQLException | ParseException e) {
+            System.out.println("hiba2");
+          }
+      }
+      return result;
+    }
+    
+    public static Car modifyACar(Car c){
+      Car result = null;
+      Date tmpDate;
+      try {
+            conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+        } catch (SQLException e) {
+          System.out.println("hiba1");
+        }
+      if (conn != null) {
+          try {
+            StringBuilder sb = new StringBuilder("UPDATE car SET brand = '");
+            sb.append(c.getBrand());
+            sb.append("', type = '");
+            sb.append(c.getType());
+            sb.append("', lastservice = '");
+            sb.append(sdf.format(c.getLastService()));
+            sb.append("', onservice = ");
+            sb.append(c.isOnService() ? 1 : 0);
+            sb.append(", price = ");
+            sb.append(c.getPricePerDay());
+            sb.append(" WHERE licencenumber = '");
+            sb.append(c.getLicenseNumber());
+            sb.append("'");
+            statement = conn.createStatement();
+            System.out.println(sb.toString());
+            statement.execute(sb.toString());
+            statement.execute("SELECT * FROM car WHERE licencenumber = '" + c.getLicenseNumber() + "'");
+            ResultSet rs = statement.getResultSet();
+            while (rs.next()) {
+                tmpDate = sdf.parse(rs.getString(4));
+                result = new Car(rs.getString(2), rs.getString(3), tmpDate,
+                        rs.getString(1), rs.getBoolean(6), rs.getString(5), rs.getInt(7), rs.getInt(8));
+            }
+          } catch (SQLException | ParseException e) {
+            System.out.println("hiba2");
+          }
+      }
+      return result;
+    }
+    
     private void createCarTable() {
         try {
             statement = conn.createStatement();

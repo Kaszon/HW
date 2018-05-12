@@ -29,6 +29,19 @@ public class Car {
         this.yearOfManufacture = yearOfManufacture;
     }
 
+  public Car(String brand, String type, Date lastService, String licenseNumber, boolean onService, int pricePerDay, int yearOfManufacture) {
+    this.brand = brand;
+    this.type = type;
+    this.lastService = lastService;
+    this.licenseNumber = licenseNumber;
+    this.onService = onService;
+    this.img = "./files/car.png";
+    this.pricePerDay = pricePerDay;
+    this.yearOfManufacture = yearOfManufacture;
+  }
+    
+    
+
     @Override
     public String toString() {
         return "Márka : " + brand + " Típus : " + type + " Rendszám : " + licenseNumber + " Napi díj :" + pricePerDay;
