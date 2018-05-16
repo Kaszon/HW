@@ -68,6 +68,8 @@ public class DBConnection {
         try {
             conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
         } catch (SQLException e) {
+          System.err.println("Not connected to the database!");
+          System.exit(1);
         }
         if (conn != null) {
             try {
@@ -130,6 +132,10 @@ public class DBConnection {
           }
       }
       return result;
+    }
+    
+    public static void ujMethod(){
+      System.out.println("a");
     }
     
     public static Car modifyACar(Car c){

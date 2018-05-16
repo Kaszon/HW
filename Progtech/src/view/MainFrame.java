@@ -140,7 +140,7 @@ public class MainFrame extends JFrame{
       diNewCar.setSize(400, 300);
       diNewCar.setLocationRelativeTo(this);
       diNewCar.add(panel);
-
+      
       panel.add(jlbBrand);
       panel.add(jlbType);
       panel.add(jtfBrand);
