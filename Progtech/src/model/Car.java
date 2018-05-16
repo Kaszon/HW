@@ -40,11 +40,9 @@ public class Car {
     this.yearOfManufacture = yearOfManufacture;
   }
     
-    
-
     @Override
     public String toString() {
-        return "Márka : " + brand + " Típus : " + type + " Rendszám : " + licenseNumber + " Napi díj :" + pricePerDay;
+        return licenseNumber + " - " + brand + " " + type;
     }
 
     public String getBrand() {

@@ -28,7 +28,7 @@ public class MainFrame extends JFrame{
     
     private JScrollPane jSp = new JScrollPane();
     private JList<Car> jList;
-    private JPanel jPn = new JPanel();
+    private JPanel jPn = new JPanel(new GridLayout(4, 1));
     private ArrayList<Car> cars = new ArrayList<>();
     private Car selectedCar = null;
     private JDialog diEditCar = new JDialog(this,"Szerkesztés",Dialog.DEFAULT_MODALITY_TYPE);
@@ -43,6 +43,13 @@ public class MainFrame extends JFrame{
       @Override
       public void actionPerformed(ActionEvent e) {
         diNewCar.setVisible(true);
+      }
+    });
+    private JButton btnRents = new JButton(new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        setVisible(false);
+        new RentsFrame(MainFrame.this).setVisible(true);
       }
     });
     
@@ -74,18 +81,20 @@ public class MainFrame extends JFrame{
         jList = new JList(cars.toArray());
         jList.addListSelectionListener(lsl);
         jSp.setViewportView(jList);
+        btnRents.setText("Kölcsönzések");
         btnEditCar.setEnabled(false);
         btnEditCar.setText("Részletek");
         btnNewCar.setText("Új autó");
         add(jSp, BorderLayout.WEST);
         jPn.add(btnEditCar);
         jPn.add(btnNewCar);
+        jPn.add(btnRents);
         add(jPn, BorderLayout.EAST);
     }
     
     private void setNewCarDialog() {
       JButton btnCancel = new JButton("Mégse");
-      JButton btnSave = new JButton("Új kocsi hozzáadása");
+      JButton btnSave = new JButton("Új autó hozzáadása");
       btnCancel.addActionListener(new ActionListener() {
           @Override
           public void actionPerformed(ActionEvent e) {

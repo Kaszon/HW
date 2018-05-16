@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Statement;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.ParseException;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import model.Car;
 import model.Client;
+import model.Rent;
 
 
 public class DBConnection {
@@ -23,6 +25,7 @@ public class DBConnection {
 
     private static Connection conn = null;
     private static Statement statement = null;
+    private static PreparedStatement prepStatement = null;
     private static DatabaseMetaData dbmd = null;
 
     public DBConnection() {
@@ -31,11 +34,112 @@ public class DBConnection {
         } catch (SQLException e) {
         }
         if (conn != null) {
-            //dateToLong("2018-05-06");
             //createCarTable();
             //createClientTable();
             //createRentTable();
         }
+    }
+    
+    public static ArrayList<Rent> getAllRents() {
+      ArrayList<Rent> rents = new ArrayList<>();
+      Rent tmpRent;
+      Date s,e,r;
+      try {
+          conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+      } catch (SQLException ex) {
+      }
+      if (conn != null) {
+          try {
+              statement = conn.createStatement();
+              statement.execute("SELECT * FROM rent");
+              ResultSet rs = statement.getResultSet();
+
+              while (rs.next()) {
+                try {
+                  r = sdf.parse(rs.getString(6));
+                } catch ( ParseException ex) {
+                  r = null;
+                }
+                s = sdf.parse(rs.getString(4));
+                e = sdf.parse(rs.getString(5));
+                tmpRent = new Rent(rs.getInt(1), getCarByLicenceNumber(rs.getString(2)), getClientByID(rs.getInt(3)), s,e,r);
+                rents.add(tmpRent);
+              }
+          } catch (SQLException | ParseException ex) {
+          }
+      }
+      return rents;
+    }
+    
+    public static Client getClientByID(int id){
+      Client result = null;
+      try {
+        conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+      } catch (SQLException e) {
+      }
+      if (conn != null) {
+        try {
+          prepStatement = conn.prepareStatement("SELECT * FROM client WHERE id = ?");
+          prepStatement.setInt(1, id);
+          ResultSet rs = prepStatement.executeQuery();
+          while (rs.next()) {
+            result = new Client(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getString(4));
+          }
+        } catch (SQLException e) {
+        }
+      }
+      return result;
+    }
+    
+    public static Car getCarByLicenceNumber(String licenceNumb){
+      Car result = null;
+      Date tmpDate;
+      try {
+        conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+      } catch (SQLException e) {
+      }
+      if (conn != null) {
+        try {
+          prepStatement = conn.prepareStatement("SELECT * FROM car WHERE licencenumber = ?");
+          prepStatement.setString(1, licenceNumb);
+          ResultSet rs = prepStatement.executeQuery();
+          while (rs.next()) {
+            tmpDate = sdf.parse(rs.getString(4));
+            result = new Car(rs.getString(2), rs.getString(3), tmpDate,
+                            rs.getString(1), rs.getBoolean(6), rs.getString(5), rs.getInt(7), rs.getInt(8));
+          }
+        } catch (SQLException | ParseException e) {
+        }
+      }
+      return result;
+    }
+    
+    public static Rent getRentByID(int id){
+      Rent result = null;
+      Date s,e,r;
+      try {
+        conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+      } catch (SQLException ex) {
+      }
+      if (conn != null) {
+        try {
+          prepStatement = conn.prepareStatement("SELECT * FROM rent WHERE id = ?");
+          prepStatement.setInt(1, id);
+          ResultSet rs = prepStatement.executeQuery();
+          while (rs.next()) {
+            try {
+              r = sdf.parse(rs.getString(6));
+            } catch ( ParseException ex) {
+              r = null;
+            }
+            s = sdf.parse(rs.getString(4));
+            e = sdf.parse(rs.getString(5));
+            result = new Rent(rs.getInt(1), getCarByLicenceNumber(rs.getString(2)), getClientByID(rs.getInt(3)), s,e,r);
+          }
+        } catch (SQLException | ParseException ex) {
+        }
+      }
+      return result;
     }
     
     public static ArrayList<Client> getAllClients() {
@@ -133,11 +237,7 @@ public class DBConnection {
       }
       return result;
     }
-    
-    public static void ujMethod(){
-      System.out.println("a");
-    }
-    
+
     public static Car modifyACar(Car c){
       Car result = null;
       Date tmpDate;

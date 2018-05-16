@@ -3,12 +3,13 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Kaszon/Suli/Progtech/HW/Progtech/src/view/MainFrame.java</file>
-            <file>file:/C:/Kaszon/Suli/Progtech/HW/Progtech/src/model/Client.java</file>
-            <file>file:/C:/Kaszon/Suli/Progtech/HW/Progtech/src/controller/DBConnection.java</file>
-            <file>file:/C:/Kaszon/Suli/Progtech/HW/Progtech/src/controller/Main.java</file>
-            <file>file:/C:/Kaszon/Suli/Progtech/HW/Progtech/test/controller/DBConnectionTest.java</file>
-            <file>file:/C:/Kaszon/Suli/Progtech/HW/Progtech/src/model/Car.java</file>
+            <file>file:/D:/Kaszon/Suli/progtech/HW/Progtech/src/model/Rent.java</file>
+            <file>file:/D:/Kaszon/Suli/progtech/HW/Progtech/src/model/Car.java</file>
+            <file>file:/D:/Kaszon/Suli/progtech/HW/Progtech/src/model/Client.java</file>
+            <file>file:/D:/Kaszon/Suli/progtech/HW/Progtech/src/controller/DBConnection.java</file>
+            <file>file:/D:/Kaszon/Suli/progtech/HW/Progtech/src/view/MainFrame.java</file>
+            <file>file:/D:/Kaszon/Suli/progtech/HW/Progtech/src/controller/Main.java</file>
+            <file>file:/D:/Kaszon/Suli/progtech/HW/Progtech/src/view/RentsFrame.java</file>
         </group>
     </open-files>
 </project-private>

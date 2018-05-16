@@ -27,6 +27,11 @@ public class Client {
     this.phonenumber = phonenumber;
   }
 
+  @Override
+  public String toString() {
+    return name;
+  }
+
   public int getId() {
     return id;
   }
