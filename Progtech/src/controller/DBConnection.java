@@ -15,32 +15,257 @@ import model.Car;
 import model.Client;
 import model.Rent;
 
-
+/**
+ *
+ * @author Kaszon
+ */
 public class DBConnection {
     private static final String URL = "jdbc:derby://localhost:1527/RentsDB";
     private static final String USERNAME = "kaszon";
     private static final String PASSWORD = "kaszon";
     
-    public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+  /**
+   *
+   */
+  public static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     private static Connection conn = null;
     private static Statement statement = null;
     private static PreparedStatement prepStatement = null;
     private static DatabaseMetaData dbmd = null;
 
-    public DBConnection() {
+  /**
+   *
+   */
+  public DBConnection() {
         try {
             conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
         } catch (SQLException e) {
         }
         if (conn != null) {
-            //createCarTable();
-            //createClientTable();
-            //createRentTable();
+            createCarTable();
+            createClientTable();
+            createRentTable();
         }
     }
     
-    public static ArrayList<Rent> getAllRents() {
+  /**
+   * Hozzáad egy új ügyfelet az adatbázishoz.
+   * @param name
+   * @param address
+   * @param phone
+   */
+  public static void addNewClient(String name, String address, String phone){
+      try {
+            conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+        } catch (SQLException e) {
+          System.out.println("hiba1");
+        }
+      if (conn != null) {
+          try {
+            //"INSERT INTO car VALUES ('toy515', 'Toyota', 'Yaris', '2017-05-05', './files/car.png', 0, 5000, 2015)"
+            StringBuilder sb = new StringBuilder("INSERT INTO client VALUES (default, '");
+            sb.append(name);
+            sb.append("', '");
+            sb.append(address);
+            sb.append("', '");
+            sb.append(phone);
+            sb.append("')");
+            statement = conn.createStatement();
+            System.out.println(sb.toString());
+            statement.execute(sb.toString());
+          } catch (SQLException e) {
+            System.out.println("hiba2");
+          }
+      }
+    }
+    
+  /**
+   * Lezárja a nyitott bérlést egy záródátummal.
+   * @param date
+   * @param licNumb
+   */
+  public static void finishRent(String date, String licNumb){
+      try {
+            conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+        } catch (SQLException e) {
+        }
+      if (conn != null) {
+          try {
+            StringBuilder sb = new StringBuilder("UPDATE rent SET returndate = '");
+            sb.append(date);
+            sb.append("' WHERE carlicenc = '");
+            sb.append(licNumb);
+            sb.append("' and returndate = ''");
+            statement = conn.createStatement();
+            System.out.println(sb.toString());
+            statement.execute(sb.toString());
+          } catch (SQLException e) {
+            e.printStackTrace();
+          }
+      }
+    }
+    
+  /**
+   *  Hozzáad egy új bérlést az adatbázishoz
+   * @param r
+   */
+  public static void addNewRent(Rent r) {
+      try {
+            conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+        } catch (SQLException e) {
+          System.out.println("hiba1");
+        }
+      if (conn != null) {
+          try {
+            //"INSERT INTO rent VALUES (default, 'toy413', '3', '2017-05-05', '2018-04-01', '')"
+            StringBuilder sb = new StringBuilder("INSERT INTO rent VALUES (default, '");
+            sb.append(r.getCar().getLicenseNumber());
+            sb.append("', ");
+            sb.append(r.getClient().getId());
+            sb.append(", '");
+            sb.append(sdf.format(r.getStartDate()));
+            sb.append("', '");
+            sb.append(sdf.format(r.getEndDate()));
+            sb.append("', '')");
+            statement = conn.createStatement();
+            System.out.println(sb.toString());
+            statement.execute(sb.toString());
+          } catch (SQLException e) {
+            e.printStackTrace();
+          }
+      }
+    }
+
+  /**
+   *  Lekéri a ügyfelek legnagyobb id-ját
+   * @return
+   */
+  public static int getMaxIdFromClient() {
+      int result = -1;
+      try {
+          conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+      } catch (SQLException e) {
+        System.err.println("Not connected to the database!");
+        System.exit(1);
+      }
+      if (conn != null) {
+          try {
+              statement = conn.createStatement();
+              statement.execute("SELECT max(id) FROM CLIENT");
+              ResultSet rs = statement.getResultSet();
+              while (rs.next()) {
+                result = rs.getInt(1);
+              }
+          } catch (SQLException e) {
+            e.printStackTrace();
+          }
+      }
+      return result;
+    }
+    
+  /**
+   *  Lekéri a bérlések legnagyobb id-ját
+   * @return
+   */
+  public static int getMaxIdFromRent() {
+      int result = -1;
+      try {
+          conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+      } catch (SQLException e) {
+        System.err.println("Not connected to the database!");
+        System.exit(1);
+      }
+      if (conn != null) {
+          try {
+              statement = conn.createStatement();
+              statement.execute("SELECT max(id) FROM RENT");
+              ResultSet rs = statement.getResultSet();
+              while (rs.next()) {
+                result = rs.getInt(1);
+              }
+          } catch (SQLException e) {
+            e.printStackTrace();
+          }
+      }
+      return result;
+    }
+    
+  /**
+   *  Lekéri az olyan ügyfeleket akiknek nincs aktív bérletük.
+   * @return
+   */
+  public static ArrayList<Client> getAvaibleClients() {
+      ArrayList<Client> clients = getAllClients();
+      Client tmpClient;
+      try {
+          conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+      } catch (SQLException e) {
+        System.err.println("Not connected to the database!");
+        System.exit(1);
+      }
+      if (conn != null) {
+          try {
+              statement = conn.createStatement();
+              statement.execute("SELECT clientid FROM RENT where returndate = ''");
+              ResultSet rs = statement.getResultSet();
+              while (rs.next()) {
+                tmpClient = getClientByID(rs.getInt(1));
+                clients.remove(tmpClient);
+              }
+          } catch (SQLException e) {
+            e.printStackTrace();
+          }
+      }
+      return clients;
+    }
+    
+  /**
+   * Lekéri az olyan autókat amelyeket ki lehet bérelni.
+   * @return
+   */
+  public static ArrayList<Car> getAvaibleCars() {
+      ArrayList<Car> cars = new ArrayList<>();
+      Car tmpCar;
+      ArrayList<Car> delete = new ArrayList<>();
+      Date tmpDate;
+      try {
+          conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
+      } catch (SQLException e) {
+        System.err.println("Not connected to the database!");
+        System.exit(1);
+      }
+      if (conn != null) {
+          try {
+              statement = conn.createStatement();
+              statement.execute("SELECT * FROM car WHERE ONSERVICE = 0");
+              ResultSet rs = statement.getResultSet();
+
+              while (rs.next()) {
+                  tmpDate = sdf.parse(rs.getString(4));
+                  tmpCar = new Car(rs.getString(2), rs.getString(3), tmpDate,
+                          rs.getString(1), rs.getBoolean(6), rs.getString(5), rs.getInt(7), rs.getInt(8));
+                  cars.add(tmpCar);
+              }
+              statement = conn.createStatement();
+              statement.execute("SELECT carlicenc FROM RENT where returndate = ''");
+              rs = statement.getResultSet();
+              while (rs.next()) {
+                tmpCar = getCarByLicenceNumber(rs.getString(1));
+                cars.remove(tmpCar);
+              }
+          } catch (SQLException | ParseException e) {
+            e.printStackTrace();
+          }
+      }
+      return cars;      
+    }
+    
+  /**
+   *  Lekéri az összes bérlést.
+   * @return
+   */
+  public static ArrayList<Rent> getAllRents() {
       ArrayList<Rent> rents = new ArrayList<>();
       Rent tmpRent;
       Date s,e,r;
@@ -71,7 +296,12 @@ public class DBConnection {
       return rents;
     }
     
-    public static Client getClientByID(int id){
+  /**
+   *  Lekér egy ügyfelet az id alapján
+   * @param id
+   * @return
+   */
+  public static Client getClientByID(int id){
       Client result = null;
       try {
         conn = DriverManager.getConnection(URL,USERNAME,PASSWORD);
@@ -91,7 +321,12 @@ public class DBConnection {
       return result;
     }
     
-    public static Car getCarByLicenceNumber(String licenceNumb){
+  /**
+   *  Lekér egy autót a rendszám alapján
+   * @param licenceNumb
+   * @return
+   */
+  public static Car getCarByLicenceNumber(String licenceNumb){
       Car result = null;
       Date tmpDate;
       try {
@@ -114,7 +349,12 @@ public class DBConnection {
       return result;
     }
     
-    public static Rent getRentByID(int id){
+  /**
+   *  Lekér egy bérlést az id alapján
+   * @param id
+   * @return
+   */
+  public static Rent getRentByID(int id){
       Rent result = null;
       Date s,e,r;
       try {
@@ -142,7 +382,11 @@ public class DBConnection {
       return result;
     }
     
-    public static ArrayList<Client> getAllClients() {
+  /**
+   *  Lekéri az összes ügyfelet
+   * @return
+   */
+  public static ArrayList<Client> getAllClients() {
       ArrayList<Client> clients = new ArrayList<>();
       Client tmpClient;
       try {
@@ -165,7 +409,11 @@ public class DBConnection {
       return clients;
     }
     
-    public static ArrayList<Car> getAllCars(){
+  /**
+   *  Lekéri az összes autót
+   * @return
+   */
+  public static ArrayList<Car> getAllCars(){
         ArrayList<Car> cars = new ArrayList<>();
         Car tmpCar;
         Date tmpDate;
@@ -193,7 +441,12 @@ public class DBConnection {
         return cars;
     }
     
-    public static Car addNewCar(Car c){
+  /**
+   *  Hozzáad egy új autót az adatbázishoz.
+   * @param c
+   * @return
+   */
+  public static Car addNewCar(Car c){
       Car result = null;
       Date tmpDate;
       try {
@@ -238,7 +491,12 @@ public class DBConnection {
       return result;
     }
 
-    public static Car modifyACar(Car c){
+  /**
+   *  Módosítja egy autónak az adatait a rendszám alapján
+   * @param c
+   * @return
+   */
+  public static Car modifyACar(Car c){
       Car result = null;
       Date tmpDate;
       try {
@@ -281,7 +539,7 @@ public class DBConnection {
     private void createCarTable() {
         try {
             statement = conn.createStatement();
-            //statement.execute("DROP TABLE car");
+            statement.execute("DROP TABLE car");
             statement.execute("CREATE TABLE car (licencenumber varchar(6) primary key not null, brand varchar(32), type varchar(32),"
                     + " lastservice varchar(32), picture varchar(32), onservice int, price int, yearofmanu int)");            
             statement.execute("INSERT INTO car VALUES ('toy515', 'Toyota', 'Yaris', '2017-05-05', './files/car.png', 0, 5000, 2015)");
@@ -316,6 +574,7 @@ public class DBConnection {
     private void createClientTable() {
         try {
             statement = conn.createStatement();
+            statement.execute("DROP TABLE CLIENT");
             statement.execute("CREATE TABLE client (id int primary key not null GENERATED ALWAYS AS IDENTITY " + 
                     "(START WITH 1, INCREMENT BY 1), name varchar(32), address varchar(32), phonenumber varchar(32))");            
             statement.execute("INSERT INTO client VALUES (default, 'Kis János', 'Budapest', '06505555555')");
@@ -333,6 +592,7 @@ public class DBConnection {
     private void createRentTable() {
         try {
             statement = conn.createStatement();
+            statement.execute("DROP TABLE rent");
             statement.execute("CREATE TABLE rent (id int primary key not null GENERATED ALWAYS AS IDENTITY " + 
                     "(START WITH 1, INCREMENT BY 1), carlicenc varchar(6), clientid int, startdate varchar(32), enddate varchar(32), returndate varchar(32))");            
             statement.execute("INSERT INTO rent VALUES (default, 'toy413', 3, '2018-04-01', '2018-05-11', '2018-05-11')");

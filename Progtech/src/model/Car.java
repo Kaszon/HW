@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Objects;
 
 public class Car {
     
@@ -76,8 +77,31 @@ public class Car {
     public int getYearOfManufacture() {
         return yearOfManufacture;
     }
-    
-    
+
+  @Override
+  public int hashCode() {
+    int hash = 3;
+    hash = 29 * hash + Objects.hashCode(this.licenseNumber);
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final Car other = (Car) obj;
+    if (!Objects.equals(this.licenseNumber, other.licenseNumber)) {
+      return false;
+    }
+    return true;
+  }
     
 }
 
